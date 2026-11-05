@@ -1,6 +1,31 @@
 """Validate pasted environment values without putting credentials in errors."""
 from sqlalchemy.engine import make_url
 from sqlalchemy.exc import ArgumentError
+from urllib.parse import urlsplit
+
+
+def normalize_allowed_origins(value: str) -> list[str]:
+    """Accept pasted quotes/spacing/trailing slash, never wildcard domains."""
+    origins = []
+    for entry in value.split(','):
+        entry = entry.strip().strip('\"\'').strip().rstrip('/')
+        if not entry:
+            continue
+        try:
+            parsed = urlsplit(entry)
+            port = parsed.port
+            if parsed.scheme not in {'http', 'https'} or not parsed.hostname or parsed.username or parsed.password or parsed.path or parsed.query or parsed.fragment or '*' in entry:
+                raise ValueError()
+        except ValueError:
+            raise RuntimeError('ALLOWED_ORIGINS must contain comma-separated http(s) website origins without paths or wildcards.') from None
+        host = parsed.hostname.lower()
+        if ':' in host:
+            host = f'[{host}]'
+        suffix = f':{port}' if port and (parsed.scheme, port) not in {('https', 443), ('http', 80)} else ''
+        origin = f'{parsed.scheme}://{host}{suffix}'
+        if origin not in origins:
+            origins.append(origin)
+    return origins
 
 
 def normalize_database_url(value: str) -> str:

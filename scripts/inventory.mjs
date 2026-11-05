@@ -35,7 +35,7 @@ const descriptions = {
   "README.md":
     "Setup, configuration, daily use, verification and relocation instructions.",
   "backend/app/config.py":
-    "Credential-safe validation and normalization of pasted database connection URLs.",
+    "Credential-safe normalization of database connection URLs and exact allowed website origins.",
   "backend/app/admin_setup.py":
     "First-owner claim transaction and trusted-shell account recovery; depends on database models, with an atomic unique completion marker.",
   "backend/alembic/versions/002_admin_setup.py":

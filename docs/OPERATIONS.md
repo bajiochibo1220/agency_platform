@@ -45,7 +45,7 @@ $setupGenerator.GetBytes($setupBytes)
 $setupGenerator.Dispose()
 ```
 
-Keep the generated value private. Apply `python -m alembic upgrade head` from the backend environment, then deploy the backend and frontend changes. Visit `/admin`, choose **Register first administrator**, and enter your name, email, password (12+ characters), password confirmation and private setup key. Sign in after registration. Remove `ADMIN_SETUP_KEY` from Render after successful setup; never put it in Vercel, source control, a public URL, or a `NEXT_PUBLIC_` variable.
+Keep the generated value private. Apply `python -m alembic upgrade head` from the backend environment, then deploy the backend and frontend changes. Visit `/admin`, choose **Register first administrator**, and enter your name, email, password (4+ characters), password confirmation and private setup key. Sign in after registration. Remove `ADMIN_SETUP_KEY` from Render after successful setup; never put it in Vercel, source control, a public URL, or a `NEXT_PUBLIC_` variable.
 
 Registration commits a permanent database marker together with the first super-admin account. Later setup attempts are rejected, including simultaneous requests, restarts, changed keys and removal of all users. Installations already containing users are closed by migration 002. They must use their existing login; this form cannot replace or recover an existing administrator. The CLI `create-admin` uses the same one-time claim. Authorized staff management remains behind super-admin authentication.
 

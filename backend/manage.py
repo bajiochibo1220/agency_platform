@@ -26,9 +26,9 @@ if args.command=='reset-admin-setup':
     print('Login accounts and sessions removed. First-owner registration is open. Website content and enquiries were preserved.')
 elif args.command=='create-admin':
     email=(os.getenv('ADMIN_EMAIL') or input('Admin email: ')).strip().lower()
-    password=os.getenv('ADMIN_PASSWORD') or getpass.getpass('Password (12+ characters): ')
-    if len(password)<12 or '@' not in email:
-        raise SystemExit('Use a valid email and a password of at least 12 characters.')
+    password=os.getenv('ADMIN_PASSWORD') or getpass.getpass('Password (4+ characters): ')
+    if len(password)<4 or '@' not in email:
+        raise SystemExit('Use a valid email and a password of at least 4 characters.')
     with SessionLocal() as db:
         seed(db)
         try:

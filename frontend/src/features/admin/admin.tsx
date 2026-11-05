@@ -293,7 +293,7 @@ export function Admin() {
       key: "password",
       label: editing?.id
         ? "New password (leave blank to keep)"
-        : "Password (12+ characters)",
+        : "Password (4+ characters)",
       type: "password",
       required: !editing?.id,
     },
@@ -1196,7 +1196,7 @@ function FormField({
         <input
           type={f.type || "text"}
           step={f.type === "number" ? "any" : undefined}
-          minLength={f.type === "password" && f.required ? 12 : undefined}
+          minLength={f.type === "password" && f.required ? 4 : undefined}
           {...props}
         />
       )}
@@ -1350,7 +1350,7 @@ function Login({ onLogin }: { onLogin: (u: User) => void }) {
               type="password"
               name="password"
               required
-              minLength={registering ? 12 : undefined}
+              minLength={registering ? 4 : undefined}
               maxLength={200}
               autoComplete={registering ? "new-password" : "current-password"}
               placeholder="Your password"
@@ -1363,7 +1363,7 @@ function Login({ onLogin }: { onLogin: (u: User) => void }) {
                 name="confirmPassword"
                 type="password"
                 required
-                minLength={12}
+                minLength={4}
                 maxLength={200}
                 autoComplete="new-password"
               />

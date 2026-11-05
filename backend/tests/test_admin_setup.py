@@ -4,9 +4,25 @@ from threading import Barrier
 from sqlalchemy import select, delete
 from app.db import SessionLocal, User, Session, SetupCompletion, Record, URL
 from app.main import verify_password
+import pytest
 
 KEY = 'disposable-owner-setup-key-1234567890'
 BODY = dict(name='First Owner', email='OWNER@example.test', password='Disposable-Owner-Password!', setupKey=KEY)
+
+@pytest.mark.parametrize('password', ['abcd', '1234'])
+def test_four_character_owner_passwords(client, monkeypatch, password):
+    empty_installation(monkeypatch)
+    assert client.post('/api/auth/setup', json={**BODY, 'password': password}).status_code == 201
+    assert client.post('/api/auth/login', json={'email': 'owner@example.test', 'password': password}).status_code == 200
+
+def test_account_password_create_and_update_minimum(admin):
+    body = dict(name='Test Account', email='four@example.test', role='sales', password='abc')
+    assert admin.post('/api/admin/users', json=body).status_code == 422
+    created = admin.post('/api/admin/users', json={**body, 'password': '1234'})
+    assert created.status_code == 201
+    path = '/api/admin/users/' + created.json()['id']
+    assert admin.put(path, json={**body, 'password': 'abc'}).status_code == 422
+    assert admin.put(path, json={**body, 'password': 'abcd'}).status_code == 200
 
 def empty_installation(monkeypatch):
     monkeypatch.setenv('ADMIN_SETUP_KEY', KEY)
@@ -48,7 +64,7 @@ def test_setup_disabled_without_private_key(client, monkeypatch):
 def test_setup_key_validation_and_request_protection(client, monkeypatch):
     empty_installation(monkeypatch)
     assert client.post('/api/auth/setup', json={**BODY, 'setupKey': 'incorrect'}).status_code == 403
-    assert client.post('/api/auth/setup', json={**BODY, 'password': 'short'}).status_code == 422
+    assert client.post('/api/auth/setup', json={**BODY, 'password': 'abc'}).status_code == 422
     assert client.post('/api/auth/setup', json={**BODY, 'email': 'invalid'}).status_code == 422
     assert client.post('/api/auth/setup', json={**BODY, 'name': '  '}).status_code == 422
     assert client.post('/api/auth/setup', json=BODY, headers={'Origin': 'https://untrusted.test'}).status_code == 403

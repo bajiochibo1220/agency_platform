@@ -1,6 +1,15 @@
 # Verification record — 5 November 2026
 
 
+## Four-character passwords and origin parsing - 5 November 2026
+
+At the owner's explicit request, initial administrator registration, CLI creation and protected user creation/password changes now accept passwords of at least four characters (maximum 200), with no letter/digit/symbol composition rule. Letters-only and digits-only passwords are accepted. Frontend minimum lengths, confirmation and account labels match; password hashing and login throttling remain in place. The private `ADMIN_SETUP_KEY` still requires at least 32 characters and is separate from the admin password.
+
+The latest live check found `/api/auth/setup` available (200) but an empty login POST from `https://agency-platform-navy.vercel.app` still returned 403 `Untrusted origin`, before any password validation. Render must include that exact website origin in `ALLOWED_ORIGINS`. The parser now normalizes copied quotes, whitespace, trailing slashes, hostname case and default ports while rejecting wildcard domains, URL paths and credentials. It does not automatically trust Vercel domains or remove origin protection.
+
+Verification: **44 backend tests and all 16 browser workflows passed**, as did the production build, TypeScript and targeted formatting checks. Coverage includes four-character letters-only and digits-only owner passwords, short-password rejection, protected account password changes, normalized/unsafe origins and browser registration/login. Evidence: `test-results/browser-results.json`. Tests use disposable data; the browser runner uses a random four-character test password to exercise the new minimum. No hosted environment, credentials or account records were changed. Both backend and frontend need redeployment for this change to reach the live website.
+
+
 ## Hosted admin sign-in diagnosis and controlled recovery - 5 November 2026
 
 Verified the supplied Vercel website using health/setup GET requests and an empty login POST (no credential guess or account write). Health returned 200; setup returned 404; login with the website's Origin returned plain-text 403 `Untrusted origin`. The backend deployment needs updating and Render's allowed origins need the actual website URL. No live accounts, credentials or environment variables were changed.

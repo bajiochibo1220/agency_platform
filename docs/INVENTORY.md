@@ -15,7 +15,7 @@ Regenerate with `node scripts/inventory.mjs`. Paths are relative to this indepen
 | `backend/alembic/versions/002_admin_setup.py` | Backend | One-time setup completion schema and closure backfill for installations with existing accounts. |
 | `backend/app/__init__.py` | Backend | Python package boundary. |
 | `backend/app/admin_setup.py` | Backend | First-owner claim transaction and trusted-shell account recovery; depends on database models, with an atomic unique completion marker. |
-| `backend/app/config.py` | Backend | Credential-safe validation and normalization of pasted database connection URLs. |
+| `backend/app/config.py` | Backend | Credential-safe normalization of database connection URLs and exact allowed website origins. |
 | `backend/app/db.py` | Backend | Database configuration and persistent SQLAlchemy models. |
 | `backend/app/main.py` | Backend | API, validation, authorization, sessions and business workflows. |
 | `backend/app/seed.py` | Backend | Clearly labelled sample identity and editable starter content. |

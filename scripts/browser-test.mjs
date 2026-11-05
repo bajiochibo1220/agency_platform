@@ -13,7 +13,8 @@ const webPort = Number(process.env.AGENCY_TEST_WEB_PORT || 3100);
 const apiPort = Number(process.env.AGENCY_TEST_API_PORT || 8100);
 const webOrigin = `http://127.0.0.1:${webPort}`;
 const apiOrigin = `http://127.0.0.1:${apiPort}`;
-const password = randomBytes(28).toString("base64url");
+// Four-character disposable password exercises the owner-requested minimum.
+const password = randomBytes(2).toString("hex");
 const env = {
   ...process.env,
   DATABASE_URL: "sqlite:///" + resolve(run, "disposable.db"),

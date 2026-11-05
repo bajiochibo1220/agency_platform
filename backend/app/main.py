@@ -24,6 +24,7 @@ from sqlalchemy.orm import Session as DBSession
 from .db import ROOT, Base, engine, SessionLocal, Record, User, Session, Audit, Revision
 from .seed import seed
 from .admin_setup import setup_complete, create_initial_admin, SetupClosed
+from .config import normalize_allowed_origins
 from . import storage
 from starlette.concurrency import run_in_threadpool
 from starlette.responses import JSONResponse
@@ -32,7 +33,7 @@ from sqlalchemy.orm.exc import StaleDataError
 log = logging.getLogger('agency')
 UPLOADS = Path(os.getenv('UPLOAD_DIR', str(ROOT / 'uploads'))).resolve()
 UPLOADS.mkdir(parents=True, exist_ok=True)
-ORIGINS = os.getenv('ALLOWED_ORIGINS', 'http://127.0.0.1:3100,http://localhost:3100').split(',')
+ORIGINS = normalize_allowed_origins(os.getenv('ALLOWED_ORIGINS', 'http://127.0.0.1:3100,http://localhost:3100'))
 PRODUCTION = os.getenv('ENVIRONMENT') == 'production'
 PUBLIC = {'services','projects','team','videos','testimonials','pages','navigation','sections'}
 OPS = {'enquiries','clients','quotations'}
@@ -324,7 +325,7 @@ class AdminSetup(BaseModel):
     model_config = ConfigDict(extra='forbid')
     name: str = Field(min_length=2, max_length=120)
     email: str = Field(min_length=3, max_length=200)
-    password: str = Field(min_length=12, max_length=200)
+    password: str = Field(min_length=4, max_length=200)
     setupKey: str = Field(min_length=1, max_length=512)
 
 @app.post('/api/auth/setup', status_code=201)
@@ -545,7 +546,7 @@ def change_user(body,db,user,existing=None):
     if not re.fullmatch(r'[^\s@]+@[^\s@]+\.[^\s@]+',email): fail(422,'Invalid email.')
     other = db.scalar(select(User).where(User.email==email))
     if other and (not existing or other.id != existing.id): fail(409,'That email is already registered.')
-    if body.password and len(body.password)<12: fail(422,'Use at least 12 characters for passwords.')
+    if body.password and len(body.password)<4: fail(422,'Use at least 4 characters for passwords.')
     if existing and existing.id == user.id and (not body.active or body.role != 'super_admin'): fail(422,'You cannot remove your own super-admin access.')
     if not existing and not body.password: fail(422,'A password is required.')
     target = existing or User(id=str(uuid4()),password=hash_password(body.password))
