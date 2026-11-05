@@ -1,5 +1,21 @@
 # Verification record — 5 November 2026
 
+## Green presentation and discreet administrator entry
+
+The public website now has a mint-green canvas, forest-green footer/contact banner, rounded cards and buttons, improved text sizes and mobile form/touch sizing. The header contains an accessible 44-pixel target displaying a single dot at the far right, linking to `/admin`; the explicit dashboard link has been removed from the public footer. The dot is discreet, not an authentication mechanism. Anonymous requests still require sign-in and backend role checks. The existing admin bootstrap remains required; setting `ADMIN_EMAIL`/`ADMIN_PASSWORD` alone does not create an account, and passwords must be at least 12 characters.
+
+Browser coverage was extended to verify the dot destination, anonymous API denial and public layouts at 320, 360, 390 and 768 pixels in addition to desktop. See the recorded results below for verification status.
+
+## Public background color update
+
+The public website canvas now uses soft red (`#fee2e2`), with darker secondary text (`#4b5563`) to preserve readability. This change is scoped to the public `.site` wrapper; the admin workspace and white content cards retain their existing styles. CSS syntax was checked with the project's formatter. No database or external hosting setting was changed; redeploy the Vercel frontend to apply it online.
+
+## Render connection-string correction
+
+The supplied Render log failed during SQLAlchemy URL parsing, before a database connection. The backend now normalizes copied outer quotes (including an unmatched outer quote) and an optional `DATABASE_URL=` assignment before parsing. Unsupported, multiline or malformed values produce credential-free configuration guidance. New regression tests use fake connection strings and make no provider requests. Render still requires the owner to save a valid Neon URI in its own Environment settings; local `.env` changes do not update Render automatically.
+
+After this correction, `npm test` passed **25 tests** (the original 14 and 11 configuration cases). The existing browser/build results below belong to the original release; this backend-only correction did not change frontend source, migrations or provider credentials. No live database connection was attempted during this correction.
+
 Implementation and local verification are complete for this simple agency release. User acceptance and live provider/deployment acceptance remain separate. BidhaaLink implementation and its prompt records were not changed.
 
 ## Recorded results

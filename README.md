@@ -68,6 +68,8 @@ This explicitly chooses a separate local SQLite database and local uploads. It d
 
 ## Daily administration
 
+The small dot at the far right of the website header opens the admin sign-in page. It is a discreet shortcut; backend authentication and role permissions protect the workspace. Your `ADMIN_EMAIL` and `ADMIN_PASSWORD` variables are used by `create-admin`, not as an automatic login account. Set a password of at least 12 characters and run `scripts/create-admin.ps1` once against your intended Neon database before signing in.
+
 1. Sign in and open **Brand & settings**. Set your name, logo, colors, homepage introduction, contact information, social links and SEO. Remove the demo notice only after replacing the examples.
 2. Upload images, PDFs or MP4 videos in **Media library**, copy the returned path/Cloudinary URL and paste it into a content image/video field. Images are decoded, metadata removed and converted to WebP. Each upload is limited to 10 MB; YouTube/Vimeo links work for longer videos. Uploaded assets are public website media; do not upload confidential client documents.
 3. Add services, projects, team profiles, pages, sections and navigation. Use `draft` until reviewed; `published` makes content visible; `archived` hides it. Order controls display sequence. Custom pages use a URL slug; add their URL to Navigation to expose a menu link. Homepage process sections use page `home` and placement `process`; other homepage sections use `content`.
@@ -87,6 +89,20 @@ npm run test:browser
 ```
 
 If the Playwright browser is not installed, run `npx playwright install chromium` once. Browser screenshots and results are written to ignored `test-results/`. Read [docs/VERIFICATION.md](docs/VERIFICATION.md) for actual recorded outcomes and limits.
+
+If your usual preview must stay open, use a separate test build and ports:
+
+```powershell
+$env:BACKEND_URL = 'http://127.0.0.1:8101'
+$env:NEXT_DIST_DIR = '.next-browser'
+$env:AGENCY_TEST_WEB_PORT = '3101'
+$env:AGENCY_TEST_API_PORT = '8101'
+npm run build
+npm run test:browser
+Remove-Item Env:BACKEND_URL, Env:NEXT_DIST_DIR, Env:AGENCY_TEST_WEB_PORT, Env:AGENCY_TEST_API_PORT
+```
+
+This suite still uses a disposable database, not your live Neon records. Run these commands in a separate terminal so your normal development environment is unaffected.
 
 ## Deploy without Docker
 

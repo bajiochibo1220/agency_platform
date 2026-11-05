@@ -3,8 +3,10 @@ import { resolve, dirname, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const ignored = new Set([
+  ".git",
   "node_modules",
   ".next",
+  ".next-browser",
   ".venv",
   "__pycache__",
   ".pytest_cache",
@@ -13,6 +15,8 @@ const ignored = new Set([
   "test-results",
 ]);
 const descriptions = {
+  "frontend/src/styles/public-polish.css":
+    "Green public-site visual system, responsive polish and discreet admin entry styling.",
   "AGENTS.md": "Independent-project scope and contributor rules.",
   ".env":
     "Prepared backend environment import file; ignored, credentials supplied by owner.",
@@ -24,6 +28,10 @@ const descriptions = {
   "package-lock.json": "Locked project tooling dependencies.",
   "README.md":
     "Setup, configuration, daily use, verification and relocation instructions.",
+  "backend/app/config.py":
+    "Credential-safe validation and normalization of pasted database connection URLs.",
+  "backend/tests/test_config.py":
+    "Regression tests for hosting environment quote handling and safe configuration errors.",
   "backend/app/db.py":
     "Database configuration and persistent SQLAlchemy models.",
   "backend/app/main.py":

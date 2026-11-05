@@ -6,7 +6,7 @@
   "checks": {
     "typescript": "passed",
     "productionBuild": "passed",
-    "apiAndMigrationTests": { "passed": 14, "failed": 0 },
+    "apiAndMigrationTests": { "passed": 25, "failed": 0 },
     "productionBrowserWorkflows": { "passed": 12, "failed": 0 },
     "browserRuntimeErrors": 0,
     "testedViewportWidths": [1440, 768, 390]
@@ -22,6 +22,11 @@
     "contractTestsPassed": true,
     "liveVerified": false,
     "reason": "Owner credentials not supplied"
+  },
+  "renderConfigurationRegression": {
+    "addedTestsPassed": 11,
+    "liveConnectionAttempted": false,
+    "remoteDeploymentNotPerformedByAgent": true
   },
   "deploymentPerformed": false,
   "userAcceptance": "pending",

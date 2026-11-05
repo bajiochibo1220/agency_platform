@@ -9,6 +9,10 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const results = resolve(root, "test-results");
 mkdirSync(results, { recursive: true });
 const run = mkdtempSync(resolve(results, "browser-"));
+const webPort = Number(process.env.AGENCY_TEST_WEB_PORT || 3100);
+const apiPort = Number(process.env.AGENCY_TEST_API_PORT || 8100);
+const webOrigin = `http://127.0.0.1:${webPort}`;
+const apiOrigin = `http://127.0.0.1:${apiPort}`;
 const password = randomBytes(28).toString("base64url");
 const env = {
   ...process.env,
@@ -18,8 +22,8 @@ const env = {
   LOCAL_DEVELOPMENT: "true",
   ENVIRONMENT: "test",
   BROWSER_TEST_PASSWORD: password,
-  ALLOWED_ORIGINS: "http://127.0.0.1:3100",
-  BACKEND_URL: "http://127.0.0.1:8100",
+  ALLOWED_ORIGINS: `${webOrigin}`,
+  BACKEND_URL: `${apiOrigin}`,
 };
 const python = resolve(
   root,
@@ -101,7 +105,7 @@ async function noOverflow(page) {
   );
 }
 try {
-  for (const port of [3100, 8100]) {
+  for (const port of [webPort, apiPort]) {
     try {
       await fetch(`http://127.0.0.1:${port}/api/health`);
       throw new Error(
@@ -116,10 +120,18 @@ try {
   );
   const backend = start(
     python,
-    ["-m", "uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", "8100"],
+    [
+      "-m",
+      "uvicorn",
+      "app.main:app",
+      "--host",
+      "127.0.0.1",
+      "--port",
+      String(apiPort),
+    ],
     resolve(root, "backend"),
   );
-  await ready("http://127.0.0.1:8100/api/health", backend);
+  await ready(`${apiOrigin}/api/health`, backend);
   const web = start(
     process.execPath,
     [
@@ -128,11 +140,11 @@ try {
       "--hostname",
       "127.0.0.1",
       "--port",
-      "3100",
+      String(webPort),
     ],
     resolve(root, "frontend"),
   );
-  await ready("http://127.0.0.1:3100/", web);
+  await ready(`${webOrigin}/`, web);
   browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({
     viewport: { width: 1440, height: 1000 },
@@ -143,7 +155,7 @@ try {
     if (r.status() >= 500) errors.push(`${r.status()}: ${r.url()}`);
   });
   await check("Desktop home, SEO, illustrations and layout", async () => {
-    await page.goto("http://127.0.0.1:3100/");
+    await page.goto(`${webOrigin}/`);
     await page.getByRole("heading", { name: /Your vision/ }).waitFor();
     assert.match(await page.title(), /Nexa Studio/);
     await noOverflow(page);
@@ -161,6 +173,28 @@ try {
       fullPage: true,
     });
   });
+  await check("Discreet top-right admin dot requires sign-in", async () => {
+    await page.goto(`${webOrigin}/`);
+    const dot = page.getByRole("link", { name: "Admin sign in", exact: true });
+    await dot.waitFor();
+    assert.equal(await dot.innerText(), ".");
+    const bounds = await dot.boundingBox();
+    assert.ok(bounds.width >= 44 && bounds.height >= 44);
+    assert.ok(bounds.x + bounds.width >= 1430 && bounds.y < 50);
+    assert.equal(
+      await page
+        .getByRole("link", { name: "Studio dashboard", exact: false })
+        .count(),
+      0,
+    );
+    await dot.click();
+    await page.waitForURL("**/admin");
+    await page.getByRole("heading", { name: "Let’s get to work." }).waitFor();
+    const protectedResponse = await context.request.get(
+      `${webOrigin}/api/admin/overview`,
+    );
+    assert.equal(protectedResponse.status(), 401);
+  });
   await check("Public routes render successfully", async () => {
     for (const path of [
       "services",
@@ -174,7 +208,7 @@ try {
       "privacy",
       "terms",
     ]) {
-      const response = await page.goto(`http://127.0.0.1:3100/${path}`);
+      const response = await page.goto(`${webOrigin}/${path}`);
       assert.equal(response.status(), 200, path);
       assert.ok(await page.locator("h1").count(), path);
       await noOverflow(page);
@@ -183,7 +217,7 @@ try {
   await check(
     "Portfolio search, category filtering and project detail",
     async () => {
-      await page.goto("http://127.0.0.1:3100/work");
+      await page.goto(`${webOrigin}/work`);
       await page
         .getByRole("textbox", { name: "Search projects" })
         .fill("booking");
@@ -205,7 +239,7 @@ try {
     },
   );
   await check("Enquiry form stores a real record", async () => {
-    await page.goto("http://127.0.0.1:3100/quote");
+    await page.goto(`${webOrigin}/quote`);
     await page.getByLabel("Your name").fill("Browser Test Client");
     await page.getByLabel("Email address").fill("client@example.test");
     await page
@@ -218,7 +252,7 @@ try {
       .waitFor();
   });
   await check("Secure login and dashboard enquiry follow-up", async () => {
-    await page.goto("http://127.0.0.1:3100/admin");
+    await page.goto(`${webOrigin}/admin`);
     await page.getByLabel("Email address").fill("browser@example.test");
     await page.getByLabel("Password", { exact: true }).fill(password);
     await page.getByRole("button", { name: "Open my workspace" }).click();
@@ -266,14 +300,14 @@ try {
     await page.getByRole("button", { name: "Save changes" }).click();
     await page.getByRole("dialog").waitFor({ state: "hidden" });
     await page.getByRole("button", { name: "Edit Our approach" }).waitFor();
-    let response = await fetch("http://127.0.0.1:3100/our-approach");
+    let response = await fetch(`${webOrigin}/our-approach`);
     assert.equal(response.status, 404);
     await page.getByRole("button", { name: "Edit Our approach" }).click();
     await page.getByLabel("Publication status").selectOption("published");
     await page.getByRole("button", { name: "Save changes" }).click();
     await page.getByRole("dialog").waitFor({ state: "hidden" });
     await page.getByRole("button", { name: "Edit Our approach" }).waitFor();
-    response = await fetch("http://127.0.0.1:3100/our-approach");
+    response = await fetch(`${webOrigin}/our-approach`);
     assert.equal(response.status, 200);
     await page.getByRole("button", { name: "Edit Our approach" }).click();
     await page.getByRole("button", { name: "Version history" }).click();
@@ -292,7 +326,7 @@ try {
         .fill("Browser Studio");
       await page.getByRole("button", { name: "Save settings" }).click();
       await page.getByText("Settings saved.", { exact: false }).waitFor();
-      const response = await fetch("http://127.0.0.1:3100/");
+      const response = await fetch(`${webOrigin}/`);
       const html = await response.text();
       assert.ok(html.includes("Browser Studio"));
       assert.ok(html.includes("<title>Browser Studio"));
@@ -373,13 +407,11 @@ try {
         .getByRole("button", { name: "Media library", exact: true })
         .click();
       const image = await page.screenshot();
-      await page
-        .locator("input[type=file]")
-        .setInputFiles({
-          name: "browser-check.png",
-          mimeType: "image/png",
-          buffer: image,
-        });
+      await page.locator("input[type=file]").setInputFiles({
+        name: "browser-check.png",
+        mimeType: "image/png",
+        buffer: image,
+      });
       await page
         .locator(".media-card strong")
         .filter({ hasText: "browser-check.png" })
@@ -397,14 +429,27 @@ try {
   await check(
     "Tablet and mobile public layouts, menu and image loading",
     async () => {
-      for (const width of [768, 390]) {
+      for (const width of [768, 390, 360, 320]) {
         await page.setViewportSize({ width, height: 844 });
         for (const path of ["/", "/services", "/work", "/team", "/contact"]) {
-          await page.goto("http://127.0.0.1:3100" + path);
+          await page.goto(`${webOrigin}` + path);
           await noOverflow(page);
+          const dot = page.getByRole("link", {
+            name: "Admin sign in",
+            exact: true,
+          });
+          const box = await dot.boundingBox();
+          assert.ok(box && box.x >= width - 50 && box.width >= 44);
         }
         if (width === 390) {
-          await page.goto("http://127.0.0.1:3100/");
+          await page.goto(`${webOrigin}/`);
+          await page.screenshot({
+            path: resolve(results, "home-mobile.png"),
+            fullPage: true,
+          });
+        }
+        if (width === 390) {
+          await page.goto(`${webOrigin}/`);
           await page
             .getByRole("button", { name: "Open menu", exact: true })
             .click();
@@ -422,7 +467,8 @@ try {
     },
   );
   await check("Mobile dashboard navigation and logout", async () => {
-    await page.goto("http://127.0.0.1:3100/admin");
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`${webOrigin}/admin`);
     await page
       .getByRole("heading", { name: "A clearer view of your studio." })
       .waitFor();

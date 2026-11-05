@@ -4,6 +4,7 @@ from pathlib import Path
 from sqlalchemy import create_engine, String, Text, JSON, Integer
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 from dotenv import load_dotenv
+from .config import normalize_database_url
 
 ROOT = Path(__file__).resolve().parents[1]
 load_dotenv(ROOT.parent / '.env')
@@ -15,8 +16,7 @@ if not URL:
     if os.getenv('LOCAL_DEVELOPMENT') != 'true':
         raise RuntimeError('Set DATABASE_URL to your Neon connection string in agency-platform/.env. Use npm run dev:local for an explicitly local preview.')
     URL = f'sqlite:///{DATA / "agency.db"}'
-if URL.startswith(('postgres://','postgresql://')):
-    URL = URL.replace('postgres://','postgresql+psycopg://',1).replace('postgresql://','postgresql+psycopg://',1)
+URL = normalize_database_url(URL)
 if os.getenv('ENVIRONMENT') == 'production' and not URL.startswith('postgresql+psycopg://'):
     raise RuntimeError('Production requires Neon PostgreSQL, not SQLite.')
 engine = create_engine(URL, connect_args={'check_same_thread': False} if URL.startswith('sqlite') else {}, pool_pre_ping=True)

@@ -63,6 +63,14 @@ export function SiteShell({
           </Link>
           <MobileMenu links={links} />
         </div>
+        <Link
+          className="admin-access-dot"
+          href="/admin"
+          aria-label="Admin sign in"
+          title="Admin sign in"
+        >
+          <span aria-hidden="true">.</span>
+        </Link>
       </header>
       <main id="main">{children}</main>
       <footer className="site-footer">
@@ -133,7 +141,6 @@ export function SiteShell({
             <div>
               <Link href="/privacy">Privacy</Link>
               <Link href="/terms">Terms</Link>
-              <Link href="/admin">Studio dashboard ↗</Link>
             </div>
           </div>
           {s.notice && <p className="demo-notice">{s.notice}</p>}

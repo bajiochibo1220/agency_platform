@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "../styles/public-polish.css";
 export const metadata: Metadata = {
   title: { default: "Agency Platform", template: "%s" },
   description: "Digital solutions for ambitious businesses.",

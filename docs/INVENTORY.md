@@ -13,6 +13,7 @@ Regenerate with `node scripts/inventory.mjs`. Paths are relative to this indepen
 | `backend/alembic/env.py` | Backend | Migration database connection and transaction boundary. |
 | `backend/alembic/versions/001_initial.py` | Backend | Initial schema migration, with upgrade and downgrade. |
 | `backend/app/__init__.py` | Backend | Python package boundary. |
+| `backend/app/config.py` | Backend | Credential-safe validation and normalization of pasted database connection URLs. |
 | `backend/app/db.py` | Backend | Database configuration and persistent SQLAlchemy models. |
 | `backend/app/main.py` | Backend | API, validation, authorization, sessions and business workflows. |
 | `backend/app/seed.py` | Backend | Clearly labelled sample identity and editable starter content. |
@@ -23,6 +24,7 @@ Regenerate with `node scripts/inventory.mjs`. Paths are relative to this indepen
 | `backend/tests/__init__.py` | Backend | Python package boundary. |
 | `backend/tests/bootstrap_browser.py` | Backend | Restricted disposable browser-test database bootstrap. |
 | `backend/tests/conftest.py` | Backend | Disposable database/credential isolation for API tests. |
+| `backend/tests/test_config.py` | Backend | Regression tests for hosting environment quote handling and safe configuration errors. |
 | `backend/tests/test_migrations.py` | Backend | Fresh isolated migration upgrade/downgrade verification. |
 | `backend/tests/test_platform.py` | Backend | Critical API, RBAC, publishing, quotation and media contract tests. |
 | `docs/ARCHITECTURE.md` | Documentation | Ownership, boundaries, permissions and extension policy. |
@@ -54,6 +56,7 @@ Regenerate with `node scripts/inventory.mjs`. Paths are relative to this indepen
 | `frontend/src/features/admin/admin.tsx` | Web | Admin authentication, overview, editors, CRM, media, users and print view. |
 | `frontend/src/features/admin/schema.ts` | Web | Structured admin fields, defaults, labels and role-aware navigation. |
 | `frontend/src/lib/api.ts` | Web | Shared same-origin HTTP client and server-side content fetching. |
+| `frontend/src/styles/public-polish.css` | Web | Green public-site visual system, responsive polish and discreet admin entry styling. |
 | `frontend/tsconfig.json` | Web | Strict frontend TypeScript configuration. |
 | `package-lock.json` | Project tooling | Locked project tooling dependencies. |
 | `package.json` | Project tooling | Independent project commands and browser/formatting tools. |
