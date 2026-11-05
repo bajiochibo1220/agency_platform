@@ -1,6 +1,6 @@
 import { chromium } from "playwright";
 import { spawn } from "node:child_process";
-import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { randomBytes } from "node:crypto";
@@ -105,6 +105,27 @@ async function noOverflow(page) {
   );
 }
 try {
+  // Next.js freezes API rewrites at build time. Reject a mismatched build
+  // before any test request can reach a backend outside this disposable run.
+  const manifest = JSON.parse(
+    readFileSync(
+      resolve(
+        root,
+        "frontend",
+        process.env.NEXT_DIST_DIR || ".next",
+        "routes-manifest.json",
+      ),
+      "utf8",
+    ),
+  );
+  const rewrites = Array.isArray(manifest.rewrites)
+    ? manifest.rewrites
+    : Object.values(manifest.rewrites).flat();
+  assert.equal(
+    rewrites.find((rule) => rule.source === "/api/:path*")?.destination,
+    `${apiOrigin}/api/:path*`,
+    "Build with BACKEND_URL matching AGENCY_TEST_API_PORT before running browser tests.",
+  );
   for (const port of [webPort, apiPort]) {
     try {
       await fetch(`http://127.0.0.1:${port}/api/health`);
@@ -180,7 +201,9 @@ try {
     assert.equal(await dot.innerText(), ".");
     const bounds = await dot.boundingBox();
     assert.ok(bounds.width >= 44 && bounds.height >= 44);
-    assert.ok(bounds.x + bounds.width >= 1430 && bounds.y < 50);
+    assert.ok(
+      bounds.x + bounds.width >= 1430 && bounds.y >= 42 && bounds.y < 120,
+    );
     assert.equal(
       await page
         .getByRole("link", { name: "Studio dashboard", exact: false })
@@ -195,6 +218,51 @@ try {
     );
     assert.equal(protectedResponse.status(), 401);
   });
+  await check(
+    "Reference palette, carousel navigation and highlight links",
+    async () => {
+      await page.goto(`${webOrigin}/`);
+      assert.equal(
+        await page
+          .locator(".utility-bar")
+          .evaluate((el) => getComputedStyle(el).backgroundColor),
+        "rgb(0, 139, 61)",
+      );
+      assert.equal(
+        await page
+          .locator(".authority-actions .button")
+          .evaluate((el) => getComputedStyle(el).backgroundColor),
+        "rgb(237, 0, 0)",
+      );
+      await page
+        .getByRole("button", { name: "Next highlight", exact: true })
+        .click();
+      await page
+        .getByRole("heading", {
+          name: "Digital solutions that move your business forward.",
+        })
+        .waitFor();
+      await page
+        .getByRole("button", { name: "Previous highlight", exact: true })
+        .click();
+      await page.getByRole("heading", { name: /Your vision/ }).waitFor();
+      await page
+        .getByRole("button", {
+          name: "Show highlight 3: Request a quote",
+          exact: true,
+        })
+        .click();
+      assert.equal(
+        await page.locator(".authority-actions .button").getAttribute("href"),
+        "/quote",
+      );
+      await page
+        .getByRole("button", { name: "Next highlight", exact: true })
+        .click();
+      await page.getByRole("heading", { name: /Your vision/ }).waitFor();
+      assert.equal(await page.locator(".authority-highlights a").count(), 5);
+    },
+  );
   await check("Public routes render successfully", async () => {
     for (const path of [
       "services",

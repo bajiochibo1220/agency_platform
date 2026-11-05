@@ -1,5 +1,12 @@
 import Link from "next/link";
-import { ArrowUpRight, Asterisk, MapPin } from "lucide-react";
+import {
+  ArrowUpRight,
+  Asterisk,
+  MapPin,
+  Mail,
+  Phone,
+  MessageCircle,
+} from "lucide-react";
 import type { Site, Item } from "@/lib/api";
 import { MobileMenu, VisitTracker } from "./public-client";
 import type { CSSProperties } from "react";
@@ -45,9 +52,43 @@ export function SiteShell({
       </a>
       <VisitTracker path={path} enabled={s.analyticsEnabled} />
       <header className="site-header">
+        <div className="utility-bar">
+          <div className="container utility-inner">
+            <div className="utility-contact">
+              {s.phone && (
+                <a href={`tel:${s.phone}`}>
+                  <Phone size={14} />
+                  {s.phone}
+                </a>
+              )}
+              {s.email && (
+                <a href={`mailto:${s.email}`}>
+                  <Mail size={14} />
+                  {s.email}
+                </a>
+              )}
+              <span>
+                <MapPin size={14} />
+                {s.location}
+              </span>
+            </div>
+            <div className="utility-links">
+              <Link href="/services">Our services</Link>
+              <Link href="/contact">Contact us</Link>
+              <Link href="/quote">
+                Request a quote <ArrowUpRight size={14} />
+              </Link>
+            </div>
+          </div>
+        </div>
         <div className="container header-inner">
           <Brand settings={s} />
           <nav className="desktop-nav" aria-label="Main navigation">
+            {!links.some((n: Item) => n.url === "/") && (
+              <Link href="/" aria-current={path === "/" ? "page" : undefined}>
+                Home
+              </Link>
+            )}
             {links.map((n: Item) => (
               <Link
                 aria-current={path === n.url ? "page" : undefined}
@@ -154,7 +195,7 @@ export function SiteShell({
           rel="noopener noreferrer"
           aria-label="Chat on WhatsApp"
         >
-          WhatsApp <ArrowUpRight size={16} />
+          <MessageCircle size={19} /> Chat with us
         </a>
       )}
     </div>

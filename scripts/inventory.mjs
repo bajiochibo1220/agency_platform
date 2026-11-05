@@ -16,7 +16,11 @@ const ignored = new Set([
 ]);
 const descriptions = {
   "frontend/src/styles/public-polish.css":
-    "Green public-site visual system, responsive polish and discreet admin entry styling.",
+    "ICT Authority-inspired green/red/white public design system, responsive layout and discreet admin entry.",
+  "frontend/src/components/home-carousel.tsx":
+    "Accessible manual homepage carousel with three agency highlights and route actions; depends on React, Next Link and site settings.",
+  "frontend/public/agency-collaboration.jpg":
+    "Locally served Unsplash collaboration photograph for the homepage; illustrative, not the agency team. Source recorded in docs/VERIFICATION.md.",
   "AGENTS.md": "Independent-project scope and contributor rules.",
   ".env":
     "Prepared backend environment import file; ignored, credentials supplied by owner.",

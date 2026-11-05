@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import type { Site, Item } from "@/lib/api";
 import { ContactBanner } from "./site-shell";
+import { HomeCarousel } from "./home-carousel";
 import {
   ProjectCard,
   ProjectGallery,
@@ -66,168 +67,26 @@ export function Home({ site }: { site: Site }) {
   const s = site.settings;
   return (
     <>
-      <section className="hero container">
-        <div className="hero-copy">
-          <p className="eyebrow">
-            <span className="status-dot" />
-            {s.eyebrow}
-          </p>
-          <h1>
-            {s.headline.split("\n").map((line: string, i: number) => (
-              <span key={i} className={i === 2 ? "accent-line" : ""}>
-                {line}
-                <br />
-              </span>
-            ))}
-          </h1>
-          <p className="hero-description">{s.description}</p>
-          <div className="hero-actions">
-            <Link href="/work" className="button">
-              Explore our work <ArrowUpRight size={19} />
+      <HomeCarousel settings={s} />
+      <section
+        className="authority-highlights"
+        aria-label="Explore our capabilities"
+      >
+        <div className="container">
+          {[
+            ["Web", "Websites & digital experiences", "/services"],
+            ["Apps", "Business & mobile applications", "/services"],
+            ["AI", "Intelligence & automation", "/services"],
+            ["Data", "Reporting & connected systems", "/solutions"],
+            ["Support", "Maintenance & ongoing care", "/contact"],
+          ].map(([title, label, href]) => (
+            <Link href={href} key={title}>
+              <strong>{title}</strong>
+              <span>{label}</span>
             </Link>
-            <Link href="/contact" className="text-link">
-              Meet your digital partner <ArrowRight size={18} />
-            </Link>
-          </div>
-          <div className="hero-footnote">
-            <span className="little-line" />
-            <span>{s.slogan}</span>
-          </div>
-        </div>
-        <div className="hero-visual">
-          <div className="orbit orbit-one" />
-          <div className="orbit orbit-two" />
-          <span className="visual-label">
-            <span className="status-dot" /> FROM IDEA TO SOMETHING REAL
-          </span>
-          <div className="hero-window">
-            <div className="window-bar">
-              <div className="window-dots">
-                <i />
-                <i />
-                <i />
-              </div>
-              <span>your-next-big-idea.app</span>
-              <MoveUpRight size={13} />
-            </div>
-            <div className="dashboard-mock">
-              <aside>
-                <span className="mock-brand">
-                  <Asterisk size={22} /> workspace
-                </span>
-                <span className="mock-nav active">▦ &nbsp; Overview</span>
-                <span className="mock-nav">▥ &nbsp; Your projects</span>
-                <span className="mock-nav">◉ &nbsp; Customers</span>
-                <span className="mock-nav">↗ &nbsp; Insights</span>
-                <div className="mock-help">
-                  Room to grow.
-                  <br />
-                  <span>One step at a time.</span>
-                  <div>↗</div>
-                </div>
-              </aside>
-              <div className="mock-content">
-                <div className="mock-top">
-                  <div>
-                    <small>YOUR BUSINESS, AT A GLANCE</small>
-                    <h4>A clearer picture.</h4>
-                  </div>
-                  <span className="mock-avatar">N</span>
-                </div>
-                <div className="mock-stat-row">
-                  <div>
-                    <small>Project progress</small>
-                    <strong>
-                      Moving forward <span>↗</span>
-                    </strong>
-                    <div className="progress-track">
-                      <i />
-                    </div>
-                  </div>
-                  <div>
-                    <small>Your next milestone</small>
-                    <strong>
-                      Launch day <span>✧</span>
-                    </strong>
-                    <span className="mock-pill">Looking good</span>
-                  </div>
-                </div>
-                <div className="mock-chart">
-                  <div>
-                    <strong>New possibilities</strong>
-                    <small>Built around your goals</small>
-                  </div>
-                  <svg
-                    viewBox="0 0 380 135"
-                    role="img"
-                    aria-label="Illustrative upward progress chart"
-                  >
-                    <defs>
-                      <linearGradient id="fill" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0" stopColor="#aee6b3" stopOpacity=".7" />
-                        <stop
-                          offset="1"
-                          stopColor="#aee6b3"
-                          stopOpacity=".03"
-                        />
-                      </linearGradient>
-                    </defs>
-                    <path
-                      d="M0 110H380 M0 70H380 M0 30H380"
-                      stroke="#e9efeb"
-                      strokeDasharray="4 4"
-                    />
-                    <path
-                      d="M0 120 C40 120 40 75 80 85S130 105 165 70S215 80 245 45S285 60 320 25S355 38 380 10 V135H0Z"
-                      fill="url(#fill)"
-                    />
-                    <path
-                      d="M0 120 C40 120 40 75 80 85S130 105 165 70S215 80 245 45S285 60 320 25S355 38 380 10"
-                      fill="none"
-                      stroke="#4f9b6b"
-                      strokeWidth="3"
-                    />
-                  </svg>
-                  <div className="chart-labels">
-                    <span>Discover</span>
-                    <span>Build</span>
-                    <span>Grow</span>
-                  </div>
-                </div>
-                <div className="mock-bottom">
-                  <span className="check-bubble">
-                    <Check size={13} />
-                  </span>{" "}
-                  A little less complexity. A lot more clarity.
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="floating-note">
-            <span>
-              <Code2 size={21} />
-            </span>
-            <div>
-              <strong>Made for your business.</strong>
-              <small>Not the other way around.</small>
-            </div>
-            <ArrowUpRight size={18} />
-          </div>
-          <span className="visual-caption">
-            A glimpse of what we can build together · interface concept
-          </span>
-          <Asterisk className="hero-star" size={62} strokeWidth={1.2} />
+          ))}
         </div>
       </section>
-      <div className="capabilities-strip">
-        <div className="container">
-          <span>STRATEGY MEETS EXECUTION</span>
-          <p>
-            Websites <Asterisk /> Applications <Asterisk /> AI & automation{" "}
-            <Asterisk /> Data & insights
-          </p>
-        </div>
-      </div>
       <section className="section container">
         <div className="section-heading">
           <div>

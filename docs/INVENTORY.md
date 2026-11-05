@@ -38,6 +38,7 @@ Regenerate with `node scripts/inventory.mjs`. Paths are relative to this indepen
 | `frontend/next.config.ts` | Web | Independent build roots, API proxy and security headers. |
 | `frontend/package-lock.json` | Web | Locked frontend dependencies. |
 | `frontend/package.json` | Web | Frontend scripts and independent runtime dependencies. |
+| `frontend/public/agency-collaboration.jpg` | Web | Locally served Unsplash collaboration photograph for the homepage; illustrative, not the agency team. Source recorded in docs/VERIFICATION.md. |
 | `frontend/public/work-blue.svg` | Web | Original illustrative portfolio concept (not client work). |
 | `frontend/public/work-mint.svg` | Web | Original illustrative portfolio concept (not client work). |
 | `frontend/public/work-peach.svg` | Web | Original illustrative portfolio concept (not client work). |
@@ -50,13 +51,14 @@ Regenerate with `node scripts/inventory.mjs`. Paths are relative to this indepen
 | `frontend/src/app/layout.tsx` | Web | Root HTML shell and base metadata. |
 | `frontend/src/app/not-found.tsx` | Web | Accessible unpublished/missing page fallback. |
 | `frontend/src/app/robots.ts` | Web | Search engine rules excluding admin/API routes. |
+| `frontend/src/components/home-carousel.tsx` | Web | Accessible manual homepage carousel with three agency highlights and route actions; depends on React, Next Link and site settings. |
 | `frontend/src/components/public-client.tsx` | Web | Mobile menu, portfolio filters, enquiry form and video controls. |
 | `frontend/src/components/public-pages.tsx` | Web | Public page compositions, service and project details. |
 | `frontend/src/components/site-shell.tsx` | Web | Dynamic identity, navigation, footer and contact banner. |
 | `frontend/src/features/admin/admin.tsx` | Web | Admin authentication, overview, editors, CRM, media, users and print view. |
 | `frontend/src/features/admin/schema.ts` | Web | Structured admin fields, defaults, labels and role-aware navigation. |
 | `frontend/src/lib/api.ts` | Web | Shared same-origin HTTP client and server-side content fetching. |
-| `frontend/src/styles/public-polish.css` | Web | Green public-site visual system, responsive polish and discreet admin entry styling. |
+| `frontend/src/styles/public-polish.css` | Web | ICT Authority-inspired green/red/white public design system, responsive layout and discreet admin entry. |
 | `frontend/tsconfig.json` | Web | Strict frontend TypeScript configuration. |
 | `package-lock.json` | Project tooling | Locked project tooling dependencies. |
 | `package.json` | Project tooling | Independent project commands and browser/formatting tools. |
