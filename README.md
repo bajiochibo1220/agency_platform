@@ -47,7 +47,7 @@ npm run dev
 - Dashboard: **http://127.0.0.1:3100/admin**
 - API documentation (development only): http://127.0.0.1:8100/docs
 
-No default administrator password exists. Use 12 or more characters. Optional `ADMIN_EMAIL` and `ADMIN_PASSWORD` variables support a one-time bootstrap; clear `ADMIN_PASSWORD` after creating the account. The password is hashed with scrypt and never returned by the API.
+No default administrator password exists. Use 12 or more characters. You can instead register the first administrator through `/admin` by configuring a private backend-only `ADMIN_SETUP_KEY` (32+ characters); follow [first administrator registration](docs/OPERATIONS.md#first-administrator-registration). Both browser registration and the CLI close permanently after the first account is created. Existing installations remain closed. Optional `ADMIN_EMAIL` and `ADMIN_PASSWORD` variables support the CLI bootstrap; clear `ADMIN_PASSWORD` after creating the account. The password is hashed with scrypt and never returned by the API.
 
 Check real provider credentials from `backend` after filling `.env`:
 
@@ -68,7 +68,7 @@ This explicitly chooses a separate local SQLite database and local uploads. It d
 
 ## Daily administration
 
-The small dot at the far right of the website header opens the admin sign-in page. It is a discreet shortcut; backend authentication and role permissions protect the workspace. Your `ADMIN_EMAIL` and `ADMIN_PASSWORD` variables are used by `create-admin`, not as an automatic login account. Set a password of at least 12 characters and run `scripts/create-admin.ps1` once against your intended Neon database before signing in.
+The small dot at the far right of the website header opens the admin sign-in page. It is a discreet shortcut; backend authentication and role permissions protect the workspace. Your `ADMIN_EMAIL` and `ADMIN_PASSWORD` variables are used by `create-admin`, not as an automatic login account. Use the one-time registration form described in [OPERATIONS.md](docs/OPERATIONS.md#first-administrator-registration), or run `scripts/create-admin.ps1` once against your intended Neon database. Set a password of at least 12 characters. After either setup method succeeds, use sign-in; registration stays closed.
 
 1. Sign in and open **Brand & settings**. Set your name, logo, colors, homepage introduction, contact information, social links and SEO. Remove the demo notice only after replacing the examples.
 2. Upload images, PDFs or MP4 videos in **Media library**, copy the returned path/Cloudinary URL and paste it into a content image/video field. Images are decoded, metadata removed and converted to WebP. Each upload is limited to 10 MB; YouTube/Vimeo links work for longer videos. Uploaded assets are public website media; do not upload confidential client documents.

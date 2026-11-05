@@ -22,6 +22,7 @@ const env = {
   LOCAL_DEVELOPMENT: "true",
   ENVIRONMENT: "test",
   BROWSER_TEST_PASSWORD: password,
+  ADMIN_SETUP_KEY: randomBytes(32).toString("base64url"),
   ALLOWED_ORIGINS: `${webOrigin}`,
   BACKEND_URL: `${apiOrigin}`,
 };
@@ -175,6 +176,69 @@ try {
   page.on("response", (r) => {
     if (r.status() >= 500) errors.push(`${r.status()}: ${r.url()}`);
   });
+  await check(
+    "First administrator registers once; setup closes after reload",
+    async () => {
+      await page.goto(`${webOrigin}/admin`);
+      await page
+        .getByRole("button", {
+          name: "Register first administrator",
+          exact: true,
+        })
+        .click();
+      await page
+        .getByRole("heading", { name: "Register your administrator." })
+        .waitFor();
+      await page.setViewportSize({ width: 390, height: 844 });
+      await noOverflow(page);
+      await page.getByLabel("Your name", { exact: true }).fill("Test owner");
+      await page
+        .getByLabel("Private setup key", { exact: true })
+        .fill(env.ADMIN_SETUP_KEY);
+      await page
+        .getByLabel("Email address", { exact: true })
+        .fill("browser@example.test");
+      await page.getByLabel("Password", { exact: true }).fill(password);
+      await page
+        .getByLabel("Confirm password", { exact: true })
+        .fill("Incorrect-Confirmation!");
+      await page
+        .getByRole("button", {
+          name: "Create administrator account",
+          exact: true,
+        })
+        .click();
+      await page
+        .getByRole("alert")
+        .filter({ hasText: "Your passwords do not match." })
+        .waitFor();
+      await page.getByLabel("Confirm password", { exact: true }).fill(password);
+      await page
+        .getByRole("button", {
+          name: "Create administrator account",
+          exact: true,
+        })
+        .click();
+      await page
+        .getByRole("status")
+        .filter({ hasText: "Your administrator account is ready." })
+        .waitFor();
+      await page.reload();
+      await page.getByRole("heading", { name: "Let’s get to work." }).waitFor();
+      const status = await context.request.get(`${webOrigin}/api/auth/setup`);
+      assert.deepEqual(await status.json(), { available: false });
+      assert.equal(
+        await page
+          .getByRole("button", {
+            name: "Register first administrator",
+            exact: true,
+          })
+          .count(),
+        0,
+      );
+      await page.setViewportSize({ width: 1440, height: 1000 });
+    },
+  );
   await check("Desktop home, SEO, illustrations and layout", async () => {
     await page.goto(`${webOrigin}/`);
     await page.getByRole("heading", { name: /Your vision/ }).waitFor();

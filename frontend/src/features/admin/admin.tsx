@@ -1212,11 +1212,32 @@ function FormField({
 function Login({ onLogin }: { onLogin: (u: User) => void }) {
   const [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
+  const [setupAvailable, setSetupAvailable] = useState(false);
+  const [registering, setRegistering] = useState(false);
+  const [success, setSuccess] = useState("");
+  useEffect(() => {
+    api("/auth/setup")
+      .then((status) => setSetupAvailable(status.available))
+      .catch(() => {});
+  }, []);
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setBusy(true);
     setError("");
     try {
+      const values = Object.fromEntries(new FormData(e.currentTarget));
+      if (registering) {
+        if (values.password !== values.confirmPassword) {
+          throw new Error("Your passwords do not match.");
+        }
+        delete values.confirmPassword;
+        await api("/auth/setup", "POST", values);
+        e.currentTarget?.reset();
+        setSetupAvailable(false);
+        setRegistering(false);
+        setSuccess("Your administrator account is ready. Sign in below.");
+        return;
+      }
       onLogin(
         await api(
           "/auth/login",
@@ -1226,6 +1247,14 @@ function Login({ onLogin }: { onLogin: (u: User) => void }) {
       );
     } catch (e) {
       setError((e as Error).message);
+      if (registering) {
+        api("/auth/setup")
+          .then((status) => {
+            setSetupAvailable(status.available);
+            if (!status.available) setRegistering(false);
+          })
+          .catch(() => {});
+      }
     } finally {
       setBusy(false);
     }
@@ -1252,19 +1281,53 @@ function Login({ onLogin }: { onLogin: (u: User) => void }) {
         <Asterisk className="login-star" size={300} strokeWidth={0.5} />
       </section>
       <section className="login-form-wrap">
-        <form onSubmit={submit}>
+        <form onSubmit={submit} key={registering ? "setup" : "login"}>
           <span className="login-icon">
             <Asterisk size={30} />
           </span>
           <p className="eyebrow">WELCOME TO YOUR STUDIO</p>
-          <h2>Let’s get to work.</h2>
-          <p>Sign in to manage your website and conversations.</p>
+          <h2>
+            {registering
+              ? "Register your administrator."
+              : "Let’s get to work."}
+          </h2>
+          <p>
+            {registering
+              ? "Create the first administrator account. Registration closes after setup."
+              : "Sign in to manage your website and conversations."}
+          </p>
+          {success && <p role="status">{success}</p>}
+          {registering && (
+            <>
+              <label>
+                Your name
+                <input
+                  name="name"
+                  required
+                  minLength={2}
+                  maxLength={120}
+                  autoComplete="name"
+                />
+              </label>
+              <label>
+                Private setup key
+                <input
+                  name="setupKey"
+                  type="password"
+                  required
+                  maxLength={512}
+                  autoComplete="off"
+                />
+              </label>
+            </>
+          )}
           <label>
             Email address
             <input
               type="email"
               name="email"
               required
+              maxLength={200}
               autoComplete="username"
               placeholder="you@yourstudio.com"
             />
@@ -1275,23 +1338,54 @@ function Login({ onLogin }: { onLogin: (u: User) => void }) {
               type="password"
               name="password"
               required
-              autoComplete="current-password"
+              minLength={registering ? 12 : undefined}
+              maxLength={200}
+              autoComplete={registering ? "new-password" : "current-password"}
               placeholder="Your password"
             />
           </label>
+          {registering && (
+            <label>
+              Confirm password
+              <input
+                name="confirmPassword"
+                type="password"
+                required
+                minLength={12}
+                maxLength={200}
+                autoComplete="new-password"
+              />
+            </label>
+          )}
           {error && (
             <p className="error-message" role="alert">
               {error}
             </p>
           )}
           <button className="button" disabled={busy}>
-            {busy ? "Signing in…" : "Open my workspace"}
+            {busy
+              ? registering
+                ? "Creating account…"
+                : "Signing in…"
+              : registering
+                ? "Create administrator account"
+                : "Open my workspace"}
             <ArrowUpRight size={18} />
           </button>
-          <p className="form-note">
-            First visit? Create your administrator using the setup instructions
-            in README.md.
-          </p>
+          {setupAvailable && (
+            <button
+              type="button"
+              className="text-link"
+              disabled={busy}
+              onClick={() => {
+                setRegistering(!registering);
+                setError("");
+                setSuccess("");
+              }}
+            >
+              {registering ? "Back to sign in" : "Register first administrator"}
+            </button>
+          )}
           <Link className="text-link" href="/">
             ← Back to website
           </Link>

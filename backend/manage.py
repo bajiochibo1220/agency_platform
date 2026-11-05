@@ -10,6 +10,7 @@ from sqlalchemy import select
 from app.db import SessionLocal, User, URL, ROOT
 from app.main import hash_password
 from app.seed import seed
+from app.admin_setup import create_initial_admin, SetupClosed
 
 parser=argparse.ArgumentParser()
 parser.add_argument('command',choices=['create-admin','seed','backup','check-integrations'])
@@ -20,11 +21,11 @@ if args.command=='create-admin':
     if len(password)<12 or '@' not in email:
         raise SystemExit('Use a valid email and a password of at least 12 characters.')
     with SessionLocal() as db:
-        if db.scalar(select(User).where(User.email==email)):
-            raise SystemExit('That user already exists. Use the dashboard to change their password.')
-        db.add(User(id=str(uuid4()),email=email,name='Studio owner',password=hash_password(password),role='super_admin'))
         seed(db)
-        db.commit()
+        try:
+            create_initial_admin(db, email=email, name='Studio owner', password_hash=hash_password(password))
+        except SetupClosed as error:
+            raise SystemExit(str(error)) from None
     print('Super admin created. No default password is stored in the project.')
 elif args.command=='seed':
     with SessionLocal() as db: seed(db)

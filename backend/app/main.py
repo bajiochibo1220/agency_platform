@@ -23,6 +23,7 @@ from sqlalchemy import select, delete
 from sqlalchemy.orm import Session as DBSession
 from .db import ROOT, Base, engine, SessionLocal, Record, User, Session, Audit, Revision
 from .seed import seed
+from .admin_setup import setup_complete, create_initial_admin, SetupClosed
 from . import storage
 from starlette.concurrency import run_in_threadpool
 from starlette.responses import JSONResponse
@@ -310,6 +311,39 @@ def visit(body: Visit, request: Request, db: DBSession = Depends(get_db)):
 class Login(BaseModel):
     email: str = Field(max_length=200)
     password: str = Field(max_length=200)
+
+def setup_key():
+    key = os.getenv('ADMIN_SETUP_KEY', '')
+    return key if len(key) >= 32 else ''
+
+@app.get('/api/auth/setup')
+def setup_status(db: DBSession = Depends(get_db)):
+    return {'available': bool(setup_key()) and not setup_complete(db)}
+
+class AdminSetup(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    name: str = Field(min_length=2, max_length=120)
+    email: str = Field(min_length=3, max_length=200)
+    password: str = Field(min_length=12, max_length=200)
+    setupKey: str = Field(min_length=1, max_length=512)
+
+@app.post('/api/auth/setup', status_code=201)
+def register_admin(body: AdminSetup, request: Request, db: DBSession = Depends(get_db)):
+    limit(request, 'admin_setup', 5, 600)
+    if setup_complete(db):
+        fail(409, 'Administrator registration is closed. Please sign in.')
+    key = setup_key()
+    if not key or not hmac.compare_digest(body.setupKey.encode(), key.encode()):
+        fail(403, 'Administrator setup is unavailable or the setup key is incorrect.')
+    email = body.email.strip().lower()
+    name = body.name.strip()
+    if len(name) < 2 or not re.fullmatch(r'[^\s@]+@[^\s@]+\.[^\s@]+', email):
+        fail(422, 'Enter your name and a valid email address.')
+    try:
+        create_initial_admin(db, email=email, name=name, password_hash=hash_password(body.password))
+    except SetupClosed as error:
+        fail(409, str(error))
+    return {'message': 'Administrator account created. Sign in to continue.'}
 
 @app.post('/api/auth/login')
 def login(body: Login, request: Request, response: Response, db: DBSession = Depends(get_db)):

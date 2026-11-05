@@ -1,5 +1,14 @@
 # Verification record — 5 November 2026
 
+
+## One-time administrator registration - 5 November 2026
+
+Added a first-owner form to `/admin`, visible only when the backend has a private `ADMIN_SETUP_KEY` of at least 32 characters and setup is still open. The form collects name, email, password, confirmation and the private key. Successful registration returns to sign-in. Visitors continue to send enquiries without accounts.
+
+The backend validates the private key, rate limits setup attempts, uses existing origin/header protections, and hashes the password with scrypt. A fixed database primary key claims setup atomically with the owner account and audit record; it prevents concurrent registrations and stays closed after account deletion or key changes. Migration 002 adds the completion table and closes setup for existing installations. The CLI shares the same claim helper. Staff provisioning stays behind the existing super-admin permissions.
+
+Backend verification: **32 tests passed** using disposable SQLite databases, including simultaneous claims, permanent closure, existing accounts, invalid/missing keys, validation, rate limits, login and migration upgrade/backfill/downgrade. **Next.js production build and TypeScript passed. All 15 browser workflows passed**, including first-owner registration at mobile width, password confirmation, closure after reload, sign-in, visitor enquiries, existing administrative workflows and responsive layouts. No browser runtime or HTTP 5xx errors were captured. Evidence: `test-results/browser-results.json`; tests used a unique disposable database and random temporary setup key, never application credentials. No live database migration, provider change or deployment was performed. Owner setup and deployed acceptance remain pending. Configuration and deployment steps are in [OPERATIONS.md](OPERATIONS.md#first-administrator-registration).
+
 ## ICT Authority-inspired public redesign - 5 November 2026
 
 The user's visual request supersedes the earlier public background and mint styling entries below. Reference: https://icta.go.ke/ and the supplied screenshot. The public site now uses a green (`#008b3d`) utility bar, white navigation with a red active underline, red (`#ed0000`) action buttons, a full-width photographic hero with three manually selectable slides, five linked capability highlights, white content cards, and a dark footer. The agency's editable identity, services, portfolio, enquiry flows and protected administration remain connected to their existing routes. No government branding, statistics or claims were copied.

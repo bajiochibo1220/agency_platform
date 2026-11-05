@@ -43,6 +43,12 @@ class User(Base):
     role: Mapped[str] = mapped_column(String(30))
     active: Mapped[int] = mapped_column(Integer, default=1)
 
+class SetupCompletion(Base):
+    """Durable one-time claim; never delete this when users change."""
+    __tablename__ = 'setup_completion'
+    id: Mapped[str] = mapped_column(String(40), primary_key=True)
+    created: Mapped[str] = mapped_column(String(40))
+
 class Session(Base):
     __tablename__ = 'sessions'
     token: Mapped[str] = mapped_column(String(64), primary_key=True)

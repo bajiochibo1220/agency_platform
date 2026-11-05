@@ -14,3 +14,17 @@ def test_fresh_schema_upgrade_and_downgrade(tmp_path):
         command.downgrade(config,'base')
         assert inspect(disposable).get_table_names()==['alembic_version']
     disposable.dispose()
+
+def test_existing_installation_stays_closed_after_upgrade(tmp_path):
+    disposable=create_engine('sqlite:///'+str(tmp_path/'existing-migration.db'))
+    config=Config(str(Path(__file__).resolve().parents[1]/'alembic.ini'))
+    from sqlalchemy import text
+    with patch('app.db.engine',disposable):
+        command.upgrade(config,'001')
+        with disposable.begin() as db:
+            db.execute(text("INSERT INTO users (id,email,name,password,role,active) VALUES ('owner','owner@example.test','Owner','fake-test-hash','super_admin',1)"))
+        command.upgrade(config,'head')
+        with disposable.begin() as db:
+            db.execute(text('DELETE FROM users'))
+            assert db.execute(text('SELECT id FROM setup_completion')).scalar() == 'initial-admin'
+    disposable.dispose()

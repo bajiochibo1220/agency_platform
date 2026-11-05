@@ -34,6 +34,12 @@ const descriptions = {
     "Setup, configuration, daily use, verification and relocation instructions.",
   "backend/app/config.py":
     "Credential-safe validation and normalization of pasted database connection URLs.",
+  "backend/app/admin_setup.py":
+    "Shared first-owner claim transaction for browser and CLI setup; depends on database models, with a permanent unique completion marker.",
+  "backend/alembic/versions/002_admin_setup.py":
+    "One-time setup completion schema and closure backfill for installations with existing accounts.",
+  "backend/tests/test_admin_setup.py":
+    "Disposable-database tests for private setup keys, validation, permanent closure, rate limits and concurrent claims.",
   "backend/tests/test_config.py":
     "Regression tests for hosting environment quote handling and safe configuration errors.",
   "backend/app/db.py":
@@ -120,7 +126,7 @@ const descriptions = {
   "backend/tests/test_migrations.py":
     "Fresh isolated migration upgrade/downgrade verification.",
   "backend/tests/bootstrap_browser.py":
-    "Restricted disposable browser-test database bootstrap.",
+    "Restricted disposable browser-test schema/content bootstrap; owner registration is exercised through the UI.",
 };
 function walk(dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {

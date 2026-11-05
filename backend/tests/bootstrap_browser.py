@@ -1,4 +1,4 @@
-"""Create ONLY the browser runner's disposable database and random test user."""
+"""Prepare ONLY the browser runner's disposable database; UI creates its owner."""
 import os
 from pathlib import Path
 from uuid import uuid4
@@ -15,6 +15,4 @@ if not URL.startswith('sqlite:///') or not target.is_relative_to(root/'test-resu
 command.upgrade(Config(str(root/'backend'/'alembic.ini')),'head')
 with SessionLocal() as db:
     seed(db)
-    db.add(User(id=str(uuid4()),email='browser@example.test',name='Test owner',password=hash_password(os.environ['BROWSER_TEST_PASSWORD']),role='super_admin'))
-    db.commit()
 print('Disposable browser database prepared.')

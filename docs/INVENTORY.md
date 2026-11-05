@@ -12,7 +12,9 @@ Regenerate with `node scripts/inventory.mjs`. Paths are relative to this indepen
 | `backend/alembic.ini` | Backend | Migration tool configuration. |
 | `backend/alembic/env.py` | Backend | Migration database connection and transaction boundary. |
 | `backend/alembic/versions/001_initial.py` | Backend | Initial schema migration, with upgrade and downgrade. |
+| `backend/alembic/versions/002_admin_setup.py` | Backend | One-time setup completion schema and closure backfill for installations with existing accounts. |
 | `backend/app/__init__.py` | Backend | Python package boundary. |
+| `backend/app/admin_setup.py` | Backend | Shared first-owner claim transaction for browser and CLI setup; depends on database models, with a permanent unique completion marker. |
 | `backend/app/config.py` | Backend | Credential-safe validation and normalization of pasted database connection URLs. |
 | `backend/app/db.py` | Backend | Database configuration and persistent SQLAlchemy models. |
 | `backend/app/main.py` | Backend | API, validation, authorization, sessions and business workflows. |
@@ -22,8 +24,9 @@ Regenerate with `node scripts/inventory.mjs`. Paths are relative to this indepen
 | `backend/requirements.lock.txt` | Backend | Exact verified backend dependency versions. |
 | `backend/requirements.txt` | Backend | Supported backend package ranges. |
 | `backend/tests/__init__.py` | Backend | Python package boundary. |
-| `backend/tests/bootstrap_browser.py` | Backend | Restricted disposable browser-test database bootstrap. |
+| `backend/tests/bootstrap_browser.py` | Backend | Restricted disposable browser-test schema/content bootstrap; owner registration is exercised through the UI. |
 | `backend/tests/conftest.py` | Backend | Disposable database/credential isolation for API tests. |
+| `backend/tests/test_admin_setup.py` | Backend | Disposable-database tests for private setup keys, validation, permanent closure, rate limits and concurrent claims. |
 | `backend/tests/test_config.py` | Backend | Regression tests for hosting environment quote handling and safe configuration errors. |
 | `backend/tests/test_migrations.py` | Backend | Fresh isolated migration upgrade/downgrade verification. |
 | `backend/tests/test_platform.py` | Backend | Critical API, RBAC, publishing, quotation and media contract tests. |

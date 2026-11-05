@@ -27,11 +27,29 @@ The root `.env` is prepared for the backend. Fill its blank values, then import 
 3. Set the root `.env` variables in Render, use `ENVIRONMENT=production`, set the exact Vercel/custom origin in `ALLOWED_ORIGINS`, and keep normal Neon and Cloudinary values.
 4. Pre-deploy command: `python -m alembic upgrade head`. On a hosting plan without a pre-deploy step, run the migration once from a trusted shell before starting the new version.
 5. Start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 1`. Health check: `/api/health`.
-6. Run `python manage.py create-admin` from a trusted shell against the intended Neon database. Use interactive input or temporary bootstrap variables; clear the password variable afterward. Run `python manage.py check-integrations` to verify the database connection and Cloudinary credentials.
+6. Create the first account using either the browser registration instructions below or `python manage.py create-admin` from a trusted shell against the intended Neon database. For CLI setup, use interactive input or temporary bootstrap variables; clear the password variable afterward. Run `python manage.py check-integrations` to verify the database connection and Cloudinary credentials.
 
 Back up before schema changes. Never point automated tests at the application database. The default seed creates a clearly labelled sample identity; replace it in the dashboard before public promotion.
 
 ## Vercel: Next.js
+
+### First administrator registration
+
+Visitors submit enquiries without accounts. For a new installation with no users, set `ADMIN_SETUP_KEY` on **Render only** to a private random value of at least 32 characters. Generate one in PowerShell:
+
+```powershell
+$setupBytes = New-Object byte[] 32
+$setupGenerator = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+$setupGenerator.GetBytes($setupBytes)
+[Convert]::ToBase64String($setupBytes)
+$setupGenerator.Dispose()
+```
+
+Keep the generated value private. Apply `python -m alembic upgrade head` from the backend environment, then deploy the backend and frontend changes. Visit `/admin`, choose **Register first administrator**, and enter your name, email, password (12+ characters), password confirmation and private setup key. Sign in after registration. Remove `ADMIN_SETUP_KEY` from Render after successful setup; never put it in Vercel, source control, a public URL, or a `NEXT_PUBLIC_` variable.
+
+Registration commits a permanent database marker together with the first super-admin account. Later setup attempts are rejected, including simultaneous requests, restarts, changed keys and removal of all users. Installations already containing users are closed by migration 002. They must use their existing login; this form cannot replace or recover an existing administrator. The CLI `create-admin` uses the same one-time claim. Authorized staff management remains behind super-admin authentication.
+
+### Frontend deployment
 
 1. Set root directory to `frontend`, framework to Next.js, install command `npm ci`, build command `npm run build`.
 2. Set `BACKEND_URL` to the HTTPS Render origin before building. Rebuild if this value changes because rewrites are compiled into the build.
