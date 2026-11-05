@@ -15,8 +15,10 @@ const ignored = new Set([
   "test-results",
 ]);
 const descriptions = {
+  "scripts/test-api-client.mjs":
+    "Mocked checks of the actual TypeScript HTTP client for non-JSON deployment errors and API validation messages; no network or credentials.",
   "frontend/src/styles/public-polish.css":
-    "ICT Authority-inspired green/red/white public design system, responsive layout and discreet admin entry.",
+    "ICT Authority-inspired green/red public design system with muted sage surfaces, responsive layout and discreet admin entry.",
   "frontend/src/components/home-carousel.tsx":
     "Accessible manual homepage carousel with three agency highlights and route actions; depends on React, Next Link and site settings.",
   "frontend/public/agency-collaboration.jpg":
@@ -35,7 +37,7 @@ const descriptions = {
   "backend/app/config.py":
     "Credential-safe validation and normalization of pasted database connection URLs.",
   "backend/app/admin_setup.py":
-    "Shared first-owner claim transaction for browser and CLI setup; depends on database models, with a permanent unique completion marker.",
+    "First-owner claim transaction and trusted-shell account recovery; depends on database models, with an atomic unique completion marker.",
   "backend/alembic/versions/002_admin_setup.py":
     "One-time setup completion schema and closure backfill for installations with existing accounts.",
   "backend/tests/test_admin_setup.py":

@@ -2,7 +2,7 @@
 from concurrent.futures import ThreadPoolExecutor
 from threading import Barrier
 from sqlalchemy import select, delete
-from app.db import SessionLocal, User, Session, SetupCompletion
+from app.db import SessionLocal, User, Session, SetupCompletion, Record, URL
 from app.main import verify_password
 
 KEY = 'disposable-owner-setup-key-1234567890'
@@ -76,3 +76,31 @@ def test_simultaneous_claims_create_exactly_one_owner(client, monkeypatch):
     with SessionLocal() as db:
         assert len(list(db.scalars(select(User)))) == 1
         assert len(list(db.scalars(select(SetupCompletion)))) == 1
+
+def test_trusted_reset_revokes_accounts_but_preserves_content(admin, monkeypatch):
+    from app.admin_setup import reset_admin_setup
+    monkeypatch.setenv('ADMIN_SETUP_KEY', KEY)
+    with SessionLocal() as db:
+        before = list(db.scalars(select(Record.id)))
+        reset_admin_setup(db)
+        assert list(db.scalars(select(Record.id))) == before
+        assert list(db.scalars(select(User))) == []
+        assert list(db.scalars(select(Session))) == []
+    assert admin.get('/api/auth/me').status_code == 401
+    assert admin.post('/api/auth/login', json={'email': 'super_admin@test.example', 'password': 'Disposable-Test-Password!'}).status_code == 401
+    assert admin.get('/api/auth/setup').json() == {'available': True}
+    assert admin.post('/api/auth/setup', json=BODY).status_code == 201
+    assert admin.get('/api/auth/setup').json() == {'available': False}
+
+def test_reset_command_requires_explicit_flag_and_private_key(client):
+    import os
+    import subprocess
+    import sys
+    from pathlib import Path
+    backend = Path(__file__).resolve().parents[1]
+    env = {**os.environ, 'DATABASE_URL': URL, 'ADMIN_SETUP_KEY': ''}
+    for args in [[], ['--confirm-reset']]:
+        result = subprocess.run([sys.executable, 'manage.py', 'reset-admin-setup', *args], cwd=backend, env=env, capture_output=True, text=True)
+        assert result.returncode != 0
+    with SessionLocal() as db:
+        assert len(list(db.scalars(select(User)))) == 5

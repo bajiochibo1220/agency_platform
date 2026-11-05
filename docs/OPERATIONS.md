@@ -79,3 +79,22 @@ Audit exports, scheduled backups, automated email, invoices/payments, complex CR
 ## Provider references
 
 The integration follows [Neon's standard PostgreSQL connection guidance](https://neon.com/docs/connect/connect-from-any-app), [Cloudinary's Python upload API](https://cloudinary.com/documentation/django_image_and_video_upload), and [Cloudinary's resource-type and delete parameters](https://cloudinary.com/documentation/image_upload_api_reference). Live verification requires your own provider accounts.
+
+
+## Recovering the first-owner registration on the hosted website
+
+A read-only health/setup check and an empty, non-credential login request against `https://agency-platform-navy.vercel.app` on 5 November 2026 returned: `/api/health` 200, `/api/auth/setup` 404 (`Not Found`), and `/api/auth/login` 403 (`Untrusted origin`). The registration code was missing from the deployed backend, and the website origin was rejected before credential validation. Removing users alone does not resolve either deployment issue.
+
+1. In Render, include `https://agency-platform-navy.vercel.app` in `ALLOWED_ORIGINS` without a trailing slash. Preserve other valid origins as comma-separated entries. Set a new private `ADMIN_SETUP_KEY` of at least 32 random characters on Render only.
+2. Deploy the updated backend and apply `python -m alembic upgrade head`. Deploy the updated frontend to Vercel as well.
+3. If old login accounts must be removed so the owner can register again, run the following from the backend directory in the **trusted Render shell** (it acts on that service's configured database):
+
+```text
+python manage.py reset-admin-setup --confirm-reset
+```
+
+This command removes **all login accounts and sessions** and the setup-completion marker, then records an audit event. Website content, enquiries, quotations, media records and existing audit history remain. Staff assignments referencing old user IDs will need reassignment after creating new staff accounts. The command refuses to run without the explicit flag or a configured private setup key. There is no public HTTP reset endpoint.
+
+4. Open `/admin`, register with your new email/password and private key, then sign in. Registration closes again after this account is created. Remove `ADMIN_SETUP_KEY`, `ADMIN_EMAIL` and `ADMIN_PASSWORD` from Render after setup if they are present; the owner account is stored in the database, not those variables.
+
+No live account reset or deployment was performed by the code changes documented here. The live deployment observations do not establish whether a valid administrator already exists.

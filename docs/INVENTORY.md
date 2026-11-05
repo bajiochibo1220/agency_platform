@@ -14,7 +14,7 @@ Regenerate with `node scripts/inventory.mjs`. Paths are relative to this indepen
 | `backend/alembic/versions/001_initial.py` | Backend | Initial schema migration, with upgrade and downgrade. |
 | `backend/alembic/versions/002_admin_setup.py` | Backend | One-time setup completion schema and closure backfill for installations with existing accounts. |
 | `backend/app/__init__.py` | Backend | Python package boundary. |
-| `backend/app/admin_setup.py` | Backend | Shared first-owner claim transaction for browser and CLI setup; depends on database models, with a permanent unique completion marker. |
+| `backend/app/admin_setup.py` | Backend | First-owner claim transaction and trusted-shell account recovery; depends on database models, with an atomic unique completion marker. |
 | `backend/app/config.py` | Backend | Credential-safe validation and normalization of pasted database connection URLs. |
 | `backend/app/db.py` | Backend | Database configuration and persistent SQLAlchemy models. |
 | `backend/app/main.py` | Backend | API, validation, authorization, sessions and business workflows. |
@@ -61,7 +61,7 @@ Regenerate with `node scripts/inventory.mjs`. Paths are relative to this indepen
 | `frontend/src/features/admin/admin.tsx` | Web | Admin authentication, overview, editors, CRM, media, users and print view. |
 | `frontend/src/features/admin/schema.ts` | Web | Structured admin fields, defaults, labels and role-aware navigation. |
 | `frontend/src/lib/api.ts` | Web | Shared same-origin HTTP client and server-side content fetching. |
-| `frontend/src/styles/public-polish.css` | Web | ICT Authority-inspired green/red/white public design system, responsive layout and discreet admin entry. |
+| `frontend/src/styles/public-polish.css` | Web | ICT Authority-inspired green/red public design system with muted sage surfaces, responsive layout and discreet admin entry. |
 | `frontend/tsconfig.json` | Web | Strict frontend TypeScript configuration. |
 | `package-lock.json` | Project tooling | Locked project tooling dependencies. |
 | `package.json` | Project tooling | Independent project commands and browser/formatting tools. |
@@ -71,6 +71,7 @@ Regenerate with `node scripts/inventory.mjs`. Paths are relative to this indepen
 | `scripts/generate-art.mjs` | Project tooling | Reproducible original SVG portfolio interface illustrations. |
 | `scripts/inventory.mjs` | Project tooling | Regenerate this file inventory without reading secret contents. |
 | `scripts/setup.ps1` | Project tooling | Install the independent Windows development environment. |
+| `scripts/test-api-client.mjs` | Project tooling | Mocked checks of the actual TypeScript HTTP client for non-JSON deployment errors and API validation messages; no network or credentials. |
 | `scripts/test.mjs` | Project tooling | Cross-platform API test launcher. |
 
 Dependencies: frontend → FastAPI HTTP only; backend → Neon/SQLAlchemy and Cloudinary; tests → disposable databases and mocked provider operations. No module depends on BidhaaLink. Node/Python dependencies are locked separately. Runtime databases, uploads, caches and test screenshots are ignored; they are not source modules.

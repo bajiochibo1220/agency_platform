@@ -177,15 +177,48 @@ try {
     if (r.status() >= 500) errors.push(`${r.status()}: ${r.url()}`);
   });
   await check(
+    "Registration and sign-in deployment errors are visible",
+    async () => {
+      await page.route("**/api/auth/setup", (route) =>
+        route.fulfill({
+          status: 404,
+          contentType: "application/json",
+          body: JSON.stringify({ detail: "Not Found" }),
+        }),
+      );
+      await page.route("**/api/auth/login", (route) =>
+        route.fulfill({
+          status: 403,
+          contentType: "text/plain",
+          body: "Untrusted origin",
+        }),
+      );
+      await page.goto(`${webOrigin}/admin`);
+      await page
+        .getByRole("alert")
+        .filter({ hasText: "Administrator registration could not be checked." })
+        .waitFor();
+      await page
+        .getByLabel("Email address", { exact: true })
+        .fill("diagnostic@example.test");
+      await page
+        .getByLabel("Password", { exact: true })
+        .fill("Disposable-Diagnostic-Password!");
+      await page
+        .getByRole("button", { name: "Open my workspace", exact: true })
+        .click();
+      await page
+        .getByRole("alert")
+        .filter({ hasText: "allowed website address" })
+        .waitFor();
+      await page.unroute("**/api/auth/setup");
+      await page.unroute("**/api/auth/login");
+    },
+  );
+  await check(
     "First administrator registers once; setup closes after reload",
     async () => {
       await page.goto(`${webOrigin}/admin`);
-      await page
-        .getByRole("button", {
-          name: "Register first administrator",
-          exact: true,
-        })
-        .click();
       await page
         .getByRole("heading", { name: "Register your administrator." })
         .waitFor();

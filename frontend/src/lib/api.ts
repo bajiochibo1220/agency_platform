@@ -21,14 +21,25 @@ export async function api(path: string, method = "GET", data?: unknown) {
     body: data === undefined ? undefined : form ? data : JSON.stringify(data),
   });
   if (!response.ok) {
-    let message = "Something went wrong. Please try again.";
+    let message =
+      response.status === 403
+        ? "The server rejected this request. Ask the website owner to check the allowed website address in the backend configuration."
+        : response.status === 404
+          ? "This service is unavailable. The backend may need to be updated before you can continue."
+          : response.status >= 500
+            ? "The website service is temporarily unavailable. Please try again shortly."
+            : `The request could not be completed (HTTP ${response.status}). Please try again.`;
     try {
       const error = await response.json();
       message =
-        typeof error.detail === "string"
+        typeof error.detail === "string" && error.detail !== "Not Found"
           ? error.detail
-          : error.detail?.map((x: { msg: string }) => x.msg).join("; ") ||
-            message;
+          : (Array.isArray(error.detail)
+              ? error.detail
+                  .map((x: { msg: string }) => x.msg)
+                  .filter(Boolean)
+                  .join("; ")
+              : "") || message;
     } catch {}
     throw new Error(message);
   }

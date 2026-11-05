@@ -7,7 +7,8 @@
     "dev:local": "node scripts/dev.mjs --local",
     "build": "npm --prefix frontend run build",
     "test": "node scripts/test.mjs",
-    "test:browser": "node scripts/browser-test.mjs"
+    "test:browser": "node scripts/browser-test.mjs",
+    "test:client": "node scripts/test-api-client.mjs"
   },
   "devDependencies": {
     "playwright": "^1.56.0",

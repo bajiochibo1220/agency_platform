@@ -1,12 +1,15 @@
 /* ICT Authority-inspired public presentation. Dashboard styles stay in globals.css. */
 .site {
   --ink: #20272d;
-  --muted: #59636c;
-  --line: #e3e7e5;
+  --muted: #46564b;
+  --line: #cbd7ce;
+  --surface-canvas: #e8eee9;
+  --surface-panel: #f1f4ef;
+  --surface-secondary: #dde7df;
   --brand-green: #008b3d;
   --brand-red: #ed0000;
   color: var(--ink);
-  background: #fff;
+  background: var(--surface-canvas);
 }
 .site .container {
   max-width: 1280px;
@@ -21,8 +24,8 @@
   position: sticky;
   top: 0;
   z-index: 40;
-  background: white;
-  border-bottom: 1px solid #eee;
+  background: var(--surface-panel);
+  border-bottom: 1px solid var(--line);
 }
 .utility-bar {
   background: var(--brand-green);
@@ -280,7 +283,7 @@
   background: var(--brand-red);
 }
 .authority-highlights {
-  background: white;
+  background: var(--surface-panel);
   border-bottom: 1px solid var(--line);
 }
 .authority-highlights > .container {
@@ -340,7 +343,7 @@
   gap: 23px;
 }
 .site .service-card {
-  background: #fff;
+  background: var(--surface-panel);
   padding: 30px;
   border: 1px solid var(--line);
   border-radius: 10px;
@@ -366,7 +369,7 @@
   font-size: 23px;
 }
 .site .work-section {
-  background: #f5f7f6;
+  background: var(--surface-secondary);
   border-block: 1px solid var(--line);
 }
 .site .project-art {
@@ -463,7 +466,7 @@
 }
 .site .enquiry-form {
   border: 1px solid var(--line);
-  background: #fff;
+  background: var(--surface-panel);
   padding: 30px;
   border-radius: 10px;
 }
@@ -475,11 +478,18 @@
 .site .enquiry-form textarea {
   font-size: 16px;
 }
+.site input,
+.site textarea,
+.site select,
+.site .search-box {
+  background: var(--surface-panel);
+  border-color: var(--line);
+}
 .site .enquiry-form .checkbox {
   font-size: 13px;
 }
 .site .contact-details {
-  background: #f1f7f3;
+  background: var(--surface-secondary);
   border: 1px solid #dce7e0;
 }
 .site .contact-details h3,
@@ -487,7 +497,7 @@
   color: #007b36;
 }
 .site .detail-sidebar {
-  background: #f1f7f3;
+  background: var(--surface-secondary);
   border-color: #dce7e0;
 }
 .site a:focus-visible,
@@ -546,7 +556,7 @@
     top: 100%;
     left: 0;
     right: 0;
-    background: white;
+    background: var(--surface-panel);
     padding: 20px 32px;
     border-bottom: 1px solid #ddd;
     box-shadow: 0 15px 25px #00000014;
@@ -555,7 +565,7 @@
     display: block;
     padding: 12px 8px;
     font-size: 15px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--line);
   }
   .utility-contact {
     flex-wrap: wrap;

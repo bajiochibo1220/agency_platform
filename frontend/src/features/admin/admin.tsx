@@ -1215,10 +1215,18 @@ function Login({ onLogin }: { onLogin: (u: User) => void }) {
   const [setupAvailable, setSetupAvailable] = useState(false);
   const [registering, setRegistering] = useState(false);
   const [success, setSuccess] = useState("");
+  const [setupError, setSetupError] = useState("");
   useEffect(() => {
     api("/auth/setup")
-      .then((status) => setSetupAvailable(status.available))
-      .catch(() => {});
+      .then((status) => {
+        setSetupAvailable(status.available);
+        setRegistering(status.available);
+      })
+      .catch((error) =>
+        setSetupError(
+          `Administrator registration could not be checked. ${error.message}`,
+        ),
+      );
   }, []);
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -1232,7 +1240,6 @@ function Login({ onLogin }: { onLogin: (u: User) => void }) {
         }
         delete values.confirmPassword;
         await api("/auth/setup", "POST", values);
-        e.currentTarget?.reset();
         setSetupAvailable(false);
         setRegistering(false);
         setSuccess("Your administrator account is ready. Sign in below.");
@@ -1297,6 +1304,11 @@ function Login({ onLogin }: { onLogin: (u: User) => void }) {
               : "Sign in to manage your website and conversations."}
           </p>
           {success && <p role="status">{success}</p>}
+          {setupError && (
+            <p className="error-message" role="alert">
+              {setupError}
+            </p>
+          )}
           {registering && (
             <>
               <label>

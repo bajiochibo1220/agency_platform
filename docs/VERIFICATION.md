@@ -1,6 +1,22 @@
 # Verification record — 5 November 2026
 
 
+## Hosted admin sign-in diagnosis and controlled recovery - 5 November 2026
+
+Verified the supplied Vercel website using health/setup GET requests and an empty login POST (no credential guess or account write). Health returned 200; setup returned 404; login with the website's Origin returned plain-text 403 `Untrusted origin`. The backend deployment needs updating and Render's allowed origins need the actual website URL. No live accounts, credentials or environment variables were changed.
+
+The HTTP client now explains non-JSON 403/404/5xx responses, preserves useful JSON validation messages, and handles unexpected error-detail shapes. Registration-check failures appear in the form instead of being swallowed. Available first-owner setup opens directly in registration mode. Added a trusted-shell-only `reset-admin-setup --confirm-reset` command to remove all login accounts/sessions, reopen owner setup and retain website content/messages plus audit history. It requires a configured private setup key. No public reset endpoint was added.
+
+Verification: six mocked API-client error checks passed; production build and TypeScript passed. **All 34 backend tests and 16 browser workflows passed**, including recovery, old-session rejection, preserved content, CLI guards, visible deployment errors and first-owner setup. Tests used disposable databases and mock error responses. Formatting checks passed. Evidence: `test-results/browser-results.json`. See [hosted recovery steps](OPERATIONS.md#recovering-the-first-owner-registration-on-the-hosted-website) for the necessary Render and Vercel actions. Live recovery remains pending.
+
+
+## Softer public backgrounds - 5 November 2026
+
+Replaced the public site's large white surfaces with a muted sage canvas (`#e8eee9`), off-white green panels (`#f1f4ef`) and deeper green-grey section backgrounds (`#dde7df`). Updated header, mobile menu, capability highlights, service cards, enquiry forms and form fields consistently. Secondary text is darker (`#46564b`) and borders use `#cbd7ce` for definition. Existing green/red branding and the dark photo hero/footer are preserved. This is a visual comfort preference, not a medical protection claim.
+
+Verification: targeted CSS formatting and source checks passed. Calculated secondary-text contrast on the three new surfaces is 6.62:1, 7.03:1 and 6.15:1 respectively. No application logic or layout dimensions changed. Earlier build/browser results below belong to their recorded versions. Changes are local and have not been deployed.
+
+
 ## One-time administrator registration - 5 November 2026
 
 Added a first-owner form to `/admin`, visible only when the backend has a private `ADMIN_SETUP_KEY` of at least 32 characters and setup is still open. The form collects name, email, password, confirmation and the private key. Successful registration returns to sign-in. Visitors continue to send enquiries without accounts.

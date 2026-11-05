@@ -1,14 +1,23 @@
 """Shared, transaction-safe first-owner setup for the form and CLI."""
 from datetime import datetime, timezone
 from uuid import uuid4
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from sqlalchemy.exc import IntegrityError
-from .db import SetupCompletion, User, Audit
+from .db import SetupCompletion, User, Session, Audit
 
 CLAIM = 'initial-admin'
 
 class SetupClosed(Exception):
     pass
+
+def reset_admin_setup(db):
+    """Trusted-shell recovery only. Never expose this operation through HTTP."""
+    db.execute(delete(Session))
+    db.execute(delete(User))
+    db.execute(delete(SetupCompletion))
+    db.add(Audit(id=str(uuid4()), actor='server-operator', action='reset_admin_setup',
+                 target='all-login-accounts', created=datetime.now(timezone.utc).isoformat()))
+    db.commit()
 
 def setup_complete(db):
     return db.get(SetupCompletion, CLAIM) is not None or db.scalar(select(User.id).limit(1)) is not None
