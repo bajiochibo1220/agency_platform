@@ -1,0 +1,36 @@
+{
+  "project": "agency-platform",
+  "date": "2026-11-05",
+  "independentOfBidhaaLink": true,
+  "docker": false,
+  "checks": {
+    "typescript": "passed",
+    "productionBuild": "passed",
+    "apiAndMigrationTests": { "passed": 14, "failed": 0 },
+    "productionBrowserWorkflows": { "passed": 12, "failed": 0 },
+    "browserRuntimeErrors": 0,
+    "testedViewportWidths": [1440, 768, 390]
+  },
+  "testIsolation": "Disposable SQLite databases, local uploads and random browser administrator credentials; Cloudinary provider operations mocked in API tests.",
+  "neon": {
+    "implemented": true,
+    "liveVerified": false,
+    "reason": "Owner credentials not supplied"
+  },
+  "cloudinary": {
+    "implemented": true,
+    "contractTestsPassed": true,
+    "liveVerified": false,
+    "reason": "Owner credentials not supplied"
+  },
+  "deploymentPerformed": false,
+  "userAcceptance": "pending",
+  "preparedEnvironmentFiles": [".env", ".env.example", "frontend/.env.example"],
+  "remainingSetup": [
+    "Fill independent provider credentials",
+    "Create owner account",
+    "Replace illustrative content",
+    "Approve actual privacy and terms",
+    "Run live provider acceptance before deployment"
+  ]
+}

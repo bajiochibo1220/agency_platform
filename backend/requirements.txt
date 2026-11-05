@@ -1,0 +1,11 @@
+fastapi>=0.121,<1
+uvicorn>=0.38,<1
+sqlalchemy>=2.0.44,<3
+alembic>=1.17,<2
+psycopg[binary]>=3.2,<4
+python-multipart>=0.0.22,<1
+python-dotenv>=1.2,<2
+pillow>=12,<13
+pytest>=9,<10
+httpx>=0.28,<1
+cloudinary>=1.44,<2
